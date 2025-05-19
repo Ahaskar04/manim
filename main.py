@@ -177,3 +177,129 @@ class ZoomedOutScene(Scene):
         self.add(frame_box)
 
         self.wait()
+
+
+class SIZoo(MovingCameraScene):
+    def construct(
+        self,
+        units = [
+            ("Length", "m", "#a2d2ff"),
+            ("Mass", "kg", "#ffc9de"),
+            ("Time", "s", "#caffbf"),
+            ("Electric Current", "A", "#fdffb6"),
+            ("Temperature", "K", "#ffd6a5"),
+            ("Amount", "mol", "#bdb2ff"),
+            ("Luminous Intensity", "cd", "#ffadad"),
+        ],
+        highlight_script = [],
+        highlight_style = "indicate",  # "indicate", "red_flash", or "wiggle"
+        show_previous_units = False
+    ):
+        spacing = 5
+        unit_groups = []
+        unit_name_to_group = {}
+
+        # Create visual elements
+        for i, (name, symbol, color) in enumerate(units):
+            icon = Circle(radius=0.5, color=color, fill_opacity=0.8).shift(UP * 0.5)
+            label = Text(name, font_size=28).next_to(icon, DOWN, buff=0.3)
+            symbol_text = Text(symbol, font_size=24).next_to(icon, UP, buff=0.3)
+
+            group = VGroup(icon, label, symbol_text).move_to(RIGHT * spacing * i)
+            unit_groups.append(group)
+            unit_name_to_group[name] = group
+
+        # Offset so first unit is centered
+        total_width = spacing * (len(units) - 1)
+        offset = LEFT * total_width / 2
+        for group in unit_groups:
+            group.shift(offset)
+
+        # Animate unit by unit
+        last_group = None
+        for group, (name, _, _) in zip(unit_groups, units):
+            self.play(FadeIn(group), run_time=0.5)
+            self.play(self.camera.frame.animate.move_to(group), run_time=0.5)
+            self.wait(0.2)
+
+            # Highlight logic
+            if name in highlight_script:
+                if highlight_style == "indicate":
+                    self.play(Indicate(group))
+                elif highlight_style == "red_flash":
+                    group.set_color(RED)
+                    self.wait(0.3)
+                    group.set_color(WHITE)
+                elif highlight_style == "wiggle":
+                    self.play(Wiggle(group))
+
+            if last_group and not show_previous_units:
+                self.play(FadeOut(last_group), run_time=0.2)
+
+            last_group = group
+
+        self.wait(1)
+
+class SIZoo2(MovingCameraScene):
+    def construct(self):
+        units = getattr(self, "units", [
+            ("Length", "m", "#a2d2ff"),
+            ("Mass", "kg", "#ffc9de"),
+            ("Time", "s", "#caffbf"),
+            ("Electric Current", "A", "#fdffb6"),
+            ("Temperature", "K", "#ffd6a5"),
+            ("Amount", "mol", "#bdb2ff"),
+            ("Luminous Intensity", "cd", "#ffadad"),
+        ])
+        highlight_script = getattr(self, "highlight_script", [])
+        highlight_style = getattr(self, "highlight_style", "indicate")
+        show_previous_units = getattr(self, "show_previous_units", False)
+
+        spacing = 5
+        unit_groups = []
+        unit_name_to_group = {}
+
+        for i, (name, symbol, color) in enumerate(units):
+            icon = Circle(radius=0.5, color=color, fill_opacity=0.8).shift(UP * 0.5)
+            label = Text(name, font_size=28).next_to(icon, DOWN, buff=0.3)
+            symbol_text = Text(symbol, font_size=24).next_to(icon, UP, buff=0.3)
+
+            group = VGroup(icon, label, symbol_text).move_to(RIGHT * spacing * i)
+            unit_groups.append(group)
+            unit_name_to_group[name] = group
+
+        total_width = spacing * (len(units) - 1)
+        offset = LEFT * total_width / 2
+        for group in unit_groups:
+            group.shift(offset)
+
+        last_group = None
+        for group, (name, _, _) in zip(unit_groups, units):
+            self.play(FadeIn(group), run_time=0.5)
+            self.play(self.camera.frame.animate.move_to(group), run_time=0.5)
+            self.wait(0.2)
+
+            if name in highlight_script:
+                if highlight_style == "indicate":
+                    self.play(Indicate(group))
+                elif highlight_style == "red_flash":
+                    group.set_color(RED)
+                    self.wait(0.3)
+                    group.set_color(WHITE)
+                    self.wait(0.3)
+                    group.set_color(RED)
+                    self.wait(0.3)
+                    group.set_color(WHITE)
+                    self.wait(0.3)
+                    group.set_color(RED)
+                    self.wait(0.3)
+                    group.set_color(WHITE)
+                elif highlight_style == "wiggle":
+                    self.play(Wiggle(group))
+
+            if last_group and not show_previous_units:
+                self.play(FadeOut(last_group), run_time=0.2)
+
+            last_group = group
+
+        self.wait(1)
